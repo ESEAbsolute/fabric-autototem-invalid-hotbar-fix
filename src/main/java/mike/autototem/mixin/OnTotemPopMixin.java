@@ -99,9 +99,9 @@ public class OnTotemPopMixin {
 
             // Move Totem To Offhand
             packetsToSend.add(new PlayerActionC2SPacket(
-              PlayerActionC2SPacket.Action.SWAP_ITEM_WITH_OFFHAND,
-              BlockPos.ORIGIN, 
-              Direction.DOWN
+                PlayerActionC2SPacket.Action.SWAP_ITEM_WITH_OFFHAND,
+                BlockPos.ORIGIN,
+                Direction.DOWN
             ));
 
             // Restore Old Hotbar Slot
@@ -109,43 +109,16 @@ public class OnTotemPopMixin {
                 packetsToSend.add(new UpdateSelectedSlotC2SPacket(currentHotbarSlot));
             }
         } else {
-            int availableHotbarSlot = inventory.getEmptySlot();
-            if (availableHotbarSlot < 9) {
-                // Select the future totem slot
-                packetsToSend.add(new UpdateSelectedSlotC2SPacket(availableHotbarSlot));
-            } else {
-                // Move Current Hotbar Slot To Offhand
-                packetsToSend.add(new PlayerActionC2SPacket(
-                  PlayerActionC2SPacket.Action.SWAP_ITEM_WITH_OFFHAND,
-                  BlockPos.ORIGIN, 
-                  Direction.DOWN
-                ));
-            }
-
-            // Move Totem To Selected Hotbar Slot
             ScreenHandler screenHandler = player.currentScreenHandler;
-            ClientPlayNetworkHandler networkHandler = client.getNetworkHandler();
             packetsToSend.add(new ClickSlotC2SPacket(
-              screenHandler.syncId,
-              screenHandler.getRevision(),
-              (short) totemSlot,
-              (byte) 0,
-              SlotActionType.QUICK_MOVE,
-              new Int2ObjectOpenHashMap<>(),
-              ItemStackHash.fromItemStack(inventory.getSelectedStack().copy(), null)
+                    screenHandler.syncId,
+                    screenHandler.getRevision(),
+                    (short) totemSlot,
+                    (byte) 40,
+                    SlotActionType.SWAP,
+                    new Int2ObjectOpenHashMap<>(),
+                    ItemStackHash.EMPTY
             ));
-
-            // The Hotbar Slot contains the Totem - Move it to the Offhand and restore the old item
-            packetsToSend.add(new PlayerActionC2SPacket(
-              PlayerActionC2SPacket.Action.SWAP_ITEM_WITH_OFFHAND,
-              BlockPos.ORIGIN, 
-              Direction.DOWN
-            ));
-
-            // Restore the old selected hotbar slot
-            if (availableHotbarSlot < 9) {
-                packetsToSend.add(new UpdateSelectedSlotC2SPacket(currentHotbarSlot));
-            }
         }
     }
 }
